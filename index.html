@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Panda</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="resources/css/ext-all.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            var navHandler = function (direction) {
+                var panda = Ext.getCmp('panda').layout;
+                var prev = Ext.getCmp('move-prev');
+                var next = Ext.getCmp('move-next');
+                var activeId = panda.activeItem.id;
+
+                if (activeId === 'card-0') {
+                    if (direction === 1) {
+                        panda.setActiveItem(1);
+                        prev.setDisabled(false);
+                    }
+                } else if (activeId === 'card-1') {
+                    if (direction === -1) {
+                        panda.setActiveItem(0);
+                        prev.setDisabled(true);
+
+                    } else {
+                        panda.setActiveItem(2);
+                        next.setText('Submit');
+                    }
+                } else if (activeId === 'card-2') {
+                    if (direction === 1) {
+                        var select=Ext.getCmp('Q1-answer').getValue().inputValue;
+                        var B=Ext.getCmp('Q50-answer').getValue()[0].inputValue;
+                        var C=Ext.getCmp('Q50-answer').getValue()[1].inputValue;
+                        console.log(select,B,C);
+                        if (select===1&&B===2&&C===3){
+                            Ext.Msg.alert('message', '恭喜你，答对了!');
+                        }
+                        else Ext.Msg.alert('message', '答案错误！');
+                    } else {
+                        panda.setActiveItem(1);
+                        next.setDisabled(false);
+                        next.setText('Next');
+                    }
+                }
+            };
+            var card = new Ext.Panel({
+                renderTo: 'test',
+                id: 'panda',
+                title: '熊猫问答',
+                width: 360,
+                height: 600,
+                layout: 'card',
+                style: 'margin:150px auto;',
+                activeItem: 0, // 激活的item不能缺少 make sure the active item is set on the container config!
+                bodyStyle: 'padding:15px',
+                defaults: {
+                    border: false
+                },
+                bbar: [
+                    {
+                        id: 'move-prev',
+                        text: 'Back',
+                        handler: navHandler.createDelegate(this, [-1]),
+                        disabled: true
+                    },
+                    '->', // 表示会占据所有空白的区域 greedy spacer so that the buttons are aligned to each side
+                    {
+                        id: 'move-next',
+                        text: 'Next',
+                        handler: navHandler.createDelegate(this, [1])
+                    }
+                ],
+                items: [{
+                    id: 'card-0',
+                    items: [{
+                        xtype: 'tbtext',
+                        text: 'Q1：番茄酱属于以下哪种垃圾？（单选）',
+                        height: 40,
+                        style: 'margin-bottom:10px;'
+                    },
+                        {
+                            id:'Q1',
+                            xtype: 'radiogroup',
+                            items: [[
+                                {boxLabel: '湿垃圾', name: 'rb-auto', inputValue: 1},
+                                {boxLabel: '干垃圾', name: 'rb-auto', inputValue: 2},
+                                {boxLabel: '有害垃圾', name: 'rb-auto', inputValue: 3},
+                                {boxLabel: '可回收物', name: 'rb-auto', inputValue: 4},
+                            ]],
+                            listeners:{
+                                change:function (view,record) {
+                                    Ext.getCmp('Q1-answer').setValue(record.inputValue);
+                                }
+                            }
+                        }
+                    ]
+                }, {
+                    id: 'card-1',
+                    items: [{
+                        xtype: 'tbtext',
+                        text: 'Q50：王大叔出门遛狗后，哪些是正确的处理狗粑粑的方法？（多选）',
+                        height: 40,
+                        style: 'margin-bottom:10px;'
+                    },
+                        {
+                            id:'Q50',
+                            xtype: 'checkboxgroup',
+                            items: [[
+                                {boxLabel: '把粑粑用废报纸包好带回家冲掉', name: 'Q50', inputValue: 1},
+                                {boxLabel: '受污染的报纸按有害垃圾处理', name: 'Q50', inputValue: 2},
+                                {boxLabel: '没受污染的报纸按可回收垃圾处理', name: 'Q50', inputValue: 3},
+                                {boxLabel: '受污染的报纸浸水后当湿垃圾处理', name: 'Q50', inputValue: 4},
+                            ]],
+                            listeners:{
+                                change:function (view,record) {
+                                    var items=[false,false,false,false];
+                                    record.forEach(item=>{
+                                        items[item.inputValue-1]=true;
+                                    });
+                                    Ext.getCmp('Q50-answer').setValue(items);
+                                }
+                            }
+                        }
+                    ]
+                }, {
+                    id: 'card-2',
+                    items: [{
+                        xtype: 'tbtext',
+                        text: '你的答案是：',
+                        height: 40,
+                    },{
+                        xtype: 'tbtext',
+                        text: 'Q1：番茄酱属于以下哪种垃圾？（单选）',
+                        height: 40,
+                        style: 'margin-bottom:10px;'
+                    },
+                        {
+                            id:'Q1-answer',
+                            xtype: 'radiogroup',
+                            style: 'margin-bottom:10px;',
+                            items: [[
+                                {boxLabel: '湿垃圾', name: 'rb1', inputValue: 1,disabled:true},
+                                {boxLabel: '干垃圾', name: 'rb1', inputValue: 2,disabled:true},
+                                {boxLabel: '有害垃圾', name: 'rb1', inputValue: 3,disabled:true},
+                                {boxLabel: '可回收物', name: 'rb1', inputValue: 4,disabled:true},
+                            ]]
+                        },
+                        {
+                            xtype: 'tbtext',
+                            text: 'Q50：王大叔出门遛狗后，哪些是正确的处理狗粑粑的方法？（多选）',
+                            height: 40,
+                            style: 'margin-bottom:10px;'
+                        },
+                        {
+                            id:'Q50-answer',
+                            xtype: 'checkboxgroup',
+                            style: 'margin-bottom:10px;',
+                            items: [[
+                                {boxLabel: '把粑粑用废报纸包好带回家冲掉', name: 'Q50-answer', inputValue: 1,disabled:true},
+                                {boxLabel: '受污染的报纸按有害垃圾处理', name: 'Q50-answer', inputValue: 2,disabled:true},
+                                {boxLabel: '没受污染的报纸按可回收垃圾处理', name: 'Q50-answer', inputValue: 3,disabled:true},
+                                {boxLabel: '受污染的报纸浸水后当湿垃圾处理', name: 'Q50-answer', inputValue: 4,disabled:true},
+                            ]]
+                        }
+                    ]
+                }]
+            });
+        })
+    </script>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>
