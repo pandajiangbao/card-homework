@@ -57,73 +57,40 @@
                 clearBlank: true,
                 autoClear: true,
             });
-            Ext.get('input').on('keyup',function (dom) {
-                var regExp = new RegExp(dom.target.value);
-                treeFilter.filter(regExp,'text',fruits);
+            var form=new Ext.FormPanel({
+                renderTo:'demo',
+                height:'500',
+                width:'500',
+                title: 'form',
+                items: [
+                    {
+                        xtype: 'fieldset',
+                        title: 'add class or student',
+                        defaultType: 'textfield',
+                        items: [
+                            {
+                                id: 'name-id',
+                                fieldLabel: 'name',
+                                name: 'name',
+                                anchor: '90%'
+                            }
+                        ]
+                    }
+                ]
             });
-            // var treePanel2 = new Ext.tree.TreePanel({
-            //     width:300,
-            //     renderTo: 'demo',
-            //     root:root2,
-            //     rootVisible:false,
-            //     collapsible:true,
-            //     enableDD:true,
-            //     animate:true,
-            //     selModel: new Ext.tree.MultiSelectionModel({}),
-            //     contextMenu:  new Ext.menu.Menu({
-            //         items: [{
-            //             id: 'delete-node',
-            //             text: 'Delete Node'
-            //         },{
-            //             id: 'alert-panda',
-            //             text: 'alert-info'
-            //         }],
-            //         listeners: {
-            //             itemclick: function(item) {
-            //                 switch (item.id) {
-            //                     case 'delete-node':
-            //                         var n = item.parentMenu.contextNode;
-            //                         if (n.parentNode) {
-            //                             n.remove();
-            //                         }
-            //                         break;
-            //                     case 'alert-panda':
-            //                         Ext.Msg.alert('message','I am panda')
-            //                 }
-            //             }
-            //         }
-            //     }),
-            //     listeners:{
-            //         contextmenu: function(node, e){
-            //             node.select();
-            //             var c = node.getOwnerTree().contextMenu;
-            //             c.contextNode = node;
-            //             c.showAt(e.getXY());
-            //         },
-            //         // nodedrop:function () {
-            //         //     Ext.Msg.alert('currently dragging node:' + e.dropNode.text + 'dropping into node:' + e.target.text + ', dragging pattern is ' + e.point);
-            //         // }
-            //         // expandnode:function () {
-            //         //     Ext.Msg.alert("message","expand");
-            //         // },
-            //         // collapsenode:function () {
-            //         //     Ext.Msg.alert("message","collapse");
-            //         // },
-            //     }
-            // });
-
-            // var treeEditor = new Ext.tree.TreeEditor(treePanel, {allowBlank: false}, {
-            //     listeners: {
-            //         complete: function(editor, currVal, origVal) {
-            //             if (currVal.includes('Zh')){
-            //                 editor.editNode.setCls('red-text');
-            //             }
-            //         }
-            //     }
+            // Ext.get('input').on('keyup',function (dom) {
+            //     var regExp = new RegExp(dom.target.value);
+            //     treeFilter.filter(regExp,'text',fruits);
             // });
         })
     </script>
     <style type="text/css">
+        #test{
+            display: inline-block;
+        }
+        #demo{
+            display: inline-block;
+        }
         .red-text span {
             color: red !important;
         }
