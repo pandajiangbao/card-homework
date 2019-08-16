@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../resources/css/ext-all.css"/>
     <script type="text/javascript">
         Ext.onReady(function () {
+            let curSeledeNode;
             var school = new Ext.tree.AsyncTreeNode({text: 'School', expanded: true});
             const treeLoader = new Ext.tree.TreeLoader({dataUrl: 'student_management.json'});
 
@@ -23,10 +24,10 @@
                     items: [{
                         id: 'delete-node',
                         text: 'Delete Node'
-                    }, {
-                        id: 'alert-panda',
-                        text: 'alert-info'
-                    }],
+                    },{
+                        id: 'add-node',
+                        text: 'Add Node'
+                    },],
                     listeners: {
                         itemclick: function (item) {
                             switch (item.id) {
@@ -36,15 +37,19 @@
                                         n.remove();
                                     }
                                     break;
-                                case 'alert-panda':
-                                    Ext.Msg.alert('message', 'I am panda')
+                                case 'add-node':
+                                    Ext.get('name-id').focus();
                             }
                         }
                     }
                 }),
                 listeners: {
+                    click: function(node){
+                        curSeledeNode = node;
+                    },
                     contextmenu: function (node, e) {
                         node.select();
+                        curSeledeNode=node;
                         var c = node.getOwnerTree().contextMenu;
                         c.contextNode = node;
                         c.showAt(e.getXY());
@@ -59,7 +64,6 @@
             });
             var form=new Ext.FormPanel({
                 renderTo:'demo',
-                height:'500',
                 width:'500',
                 title: 'form',
                 items: [
@@ -76,12 +80,37 @@
                             }
                         ]
                     }
-                ]
+                ],
+                buttons: [{
+                    text:'Add',
+                    listeners: {
+                        'click': function (btn, eventObject) {
+                            if (curSeledeNode.leaf === undefined || curSeledeNode.leaf === false) {
+                                if (curSeledeNode.text === 'School') {
+                                    school.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
+                                        expanded: true,
+                                        children: [],
+                                        id: Ext.getCmp('name-id').getValue()+'-id'
+                                    }));
+                                } else {
+                                    curSeledeNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
+                                        leaf: true,
+                                        checked: false,
+                                        id: Ext.getCmp('name-id').getValue()+'-id'
+                                    }))
+                                }
+                            }
+                            else{
+                                curSeledeNode.parentNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
+                                    leaf: true,
+                                    checked: false,
+                                    id: Ext.getCmp('name-id').getValue()+'-id'
+                                }))
+                            }
+                        }
+                    }
+                }]
             });
-            // Ext.get('input').on('keyup',function (dom) {
-            //     var regExp = new RegExp(dom.target.value);
-            //     treeFilter.filter(regExp,'text',fruits);
-            // });
         })
     </script>
     <style type="text/css">
@@ -90,9 +119,6 @@
         }
         #demo{
             display: inline-block;
-        }
-        .red-text span {
-            color: red !important;
         }
     </style>
 </head>
