@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Panda</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="../adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="../ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="../resources/css/ext-all.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            var school = new Ext.tree.AsyncTreeNode({text: 'School', expanded: true});
+            const treeLoader = new Ext.tree.TreeLoader({dataUrl: 'student_management.json'});
+
+            var treePanel = new Ext.tree.TreePanel({
+                width: 300,
+                renderTo: 'test',
+                root: school,
+                collapsible: true,
+                animate: true,
+                loader:treeLoader,
+                contextMenu: new Ext.menu.Menu({
+                    items: [{
+                        id: 'delete-node',
+                        text: 'Delete Node'
+                    }, {
+                        id: 'alert-panda',
+                        text: 'alert-info'
+                    }],
+                    listeners: {
+                        itemclick: function (item) {
+                            switch (item.id) {
+                                case 'delete-node':
+                                    var n = item.parentMenu.contextNode;
+                                    if (n.parentNode) {
+                                        n.remove();
+                                    }
+                                    break;
+                                case 'alert-panda':
+                                    Ext.Msg.alert('message', 'I am panda')
+                            }
+                        }
+                    }
+                }),
+                listeners: {
+                    contextmenu: function (node, e) {
+                        node.select();
+                        var c = node.getOwnerTree().contextMenu;
+                        c.contextNode = node;
+                        c.showAt(e.getXY());
+                    },
+                }
+            });
+
+            var treeFilter = new Ext.tree.TreeFilter(treePanel, {
+                id:'treeFilter',
+                clearBlank: true,
+                autoClear: true,
+            });
+            Ext.get('input').on('keyup',function (dom) {
+                var regExp = new RegExp(dom.target.value);
+                treeFilter.filter(regExp,'text',fruits);
+            });
+            // var treePanel2 = new Ext.tree.TreePanel({
+            //     width:300,
+            //     renderTo: 'demo',
+            //     root:root2,
+            //     rootVisible:false,
+            //     collapsible:true,
+            //     enableDD:true,
+            //     animate:true,
+            //     selModel: new Ext.tree.MultiSelectionModel({}),
+            //     contextMenu:  new Ext.menu.Menu({
+            //         items: [{
+            //             id: 'delete-node',
+            //             text: 'Delete Node'
+            //         },{
+            //             id: 'alert-panda',
+            //             text: 'alert-info'
+            //         }],
+            //         listeners: {
+            //             itemclick: function(item) {
+            //                 switch (item.id) {
+            //                     case 'delete-node':
+            //                         var n = item.parentMenu.contextNode;
+            //                         if (n.parentNode) {
+            //                             n.remove();
+            //                         }
+            //                         break;
+            //                     case 'alert-panda':
+            //                         Ext.Msg.alert('message','I am panda')
+            //                 }
+            //             }
+            //         }
+            //     }),
+            //     listeners:{
+            //         contextmenu: function(node, e){
+            //             node.select();
+            //             var c = node.getOwnerTree().contextMenu;
+            //             c.contextNode = node;
+            //             c.showAt(e.getXY());
+            //         },
+            //         // nodedrop:function () {
+            //         //     Ext.Msg.alert('currently dragging node:' + e.dropNode.text + 'dropping into node:' + e.target.text + ', dragging pattern is ' + e.point);
+            //         // }
+            //         // expandnode:function () {
+            //         //     Ext.Msg.alert("message","expand");
+            //         // },
+            //         // collapsenode:function () {
+            //         //     Ext.Msg.alert("message","collapse");
+            //         // },
+            //     }
+            // });
+
+            // var treeEditor = new Ext.tree.TreeEditor(treePanel, {allowBlank: false}, {
+            //     listeners: {
+            //         complete: function(editor, currVal, origVal) {
+            //             if (currVal.includes('Zh')){
+            //                 editor.editNode.setCls('red-text');
+            //             }
+            //         }
+            //     }
+            // });
+        })
+    </script>
+    <style type="text/css">
+        .red-text span {
+            color: red !important;
+        }
+    </style>
+</head>
+<body>
+<div id="test"></div>
+<div id="demo"></div>
+</body>
+</html>
