@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Panda</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="../adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="../ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="../resources/css/ext-all.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            Ext.QuickTips.init();
+            var data = [];
+            var tpl = new Ext.XTemplate(
+                '<table>',
+                '<tpl for="values">',
+                '<tr>',
+                '<tpl for="values">',
+                '<td> {.} </td>',
+                '</tpl>',
+                '</tr>',
+                '</tpl>',
+                '</table>'
+            );
+            var input=new Ext.Window({
+                width:300,
+                height:200,
+                closable:true,
+                items: new Ext.form.FormPanel({
+                    id: 'fs',
+                    labelAlign: 'right',  //标签位置
+                    labelWidth: 50,       //标签宽度
+                    width: '100%',
+                    height: 170,
+                    buttonAlign: 'center',
+                    frame: true,
+                    items: [{
+                        layout: 'column',   //布局方式
+                        items: [{
+                            columnWidth: .99,  //列宽
+                            xtype: 'fieldset',
+                            title: '',
+                            autoHeight: true,
+                            defaults: {width: 300},
+                            defaultType: 'numberfield',  //默认类型
+                            items: [{
+                                id: 'rowField',
+                                fieldLabel: 'row',
+                                msgTarget: 'title',
+                                name: 'rowField'
+                            },{
+                                id: 'columnField',
+                                fieldLabel: 'column',
+                                msgTarget: 'title',
+                                name: 'columnField'
+                            }
+                            ]
+                        }]
+                    }],
+                    buttons: [{
+                        text: 'generate',
+                        handler: function(btn, form){
+                            let row = Ext.getCmp('rowField').getValue();
+                            let column = Ext.getCmp('columnField').getValue();
+                            data = setArray(row, column);
+                            tpl.overwrite(table.body, data);
+                            input.hide();
+                            Ext.getCmp('rowField').reset();
+                            Ext.getCmp('columnField').reset();
+                        }
+                    }]
+                }),
+            });
+            var table = new Ext.Panel({
+                title: 'Table',
+                width:'100%',
+                shadow: true,
+                draggable: true,
+                collapsible: true,
+                height: 150,
+                autoScroll: true
+            });
+            var menu = new Ext.menu.Menu({
+                id: 'menu-id',
+                items: [
+                    {
+                        text: 'edit',
+                        menu: [{
+                            text: 'reset',
+                            handler:function () {
+                                Ext.getCmp('blog-id').reset();
+                                Ext.getCmp('reply-id').setDisabled(true);
+                            }
+                        }]
+                    },
+                    {
+                        text: 'insert',
+                        menu: [{
+                            text: 'table',
+                            handler:function () {
+                                input.show();
+                            }
+                        }]
+                    }
+                ]
+            });
+            Ext.getDoc().on('contextmenu', function (e) {
+                e.preventDefault();
+                menu.showAt(e.getXY());
+            });
+            var htmlEditor = new Ext.form.HtmlEditor({
+                id: 'blog-id',
+                enableAlignments: true,
+                enableColors: true,
+                enableFont: true,
+                enableFontSize: true,
+                enableFormat: true,
+                enableLinks: true,
+                enableLists: true,
+                enableSourceEdit: true,
+                width: '100%',
+                listeners: {
+                    'sync': function (node, value) {
+                        Ext.getCmp('blog-id');
+                        console.log(value);
+                        if (Ext.isEmpty(value)) {
+                            Ext.getCmp('reply-id').disable();
+                            return
+                        }
+                        Ext.getCmp('reply-id').enable();
+                    },
+                }
+            })
+            var panel = new Ext.Panel({
+                width: 1000,
+                renderTo: 'test',
+                title: 'Panda Blog',
+                tbar: [
+                    {
+                        text: 'menu',
+                        menu: menu
+                    }
+                ],
+                items: [
+                    table,
+                    htmlEditor
+                    // {
+                    //     id:'blog-id',
+                    //     xtype:'textarea',
+                    //     width:'100%',
+                    //     enableKeyEvents: true,
+                    //     listeners : {
+                    //         keyup : function(content,e){
+                    //             Ext.getCmp('reply-id').setDisabled(Ext.isEmpty(content.getValue()))
+                    //         }
+                    //     }
+                    // }
+                ],
+                buttons: [
+                    {
+                        id:'reply-id',
+                        text: 'reply',
+                        disabled:true,
+                        handler:function () {
+                            Ext.MessageBox.progress('Waiting' ,'loading……');
+                            var runner = new Ext.util.TaskRunner();
+                            var count = 0;
+                            var task = {
+                                run: function() {
+                                    if (count > 3) {
+                                        Ext.MessageBox.hide();
+                                        Ext.getCmp('blog-id').reset();
+                                        Ext.getCmp('reply-id').setDisabled(true);
+                                        Ext.Msg.alert('message', 'success');
+                                        return false;
+                                    }
+                                    Ext.MessageBox.updateProgress(count/3, Math.floor(count/3 * 100) + '%');
+                                    count ++
+                                },
+                                interval: 1000
+                            };
+                            runner.start(task);
+                        }
+                    }
+                ]
+            });
+            function setArray(row, column) {
+                let resultArray = [];
+                for (let i = 0; i < row; i ++) {
+                    resultArray[i]=[];
+                    for (let j = 0; j < column; j ++) {
+                        resultArray[i][j] = j;
+                    }
+                }
+                return resultArray
+            }
+        })
+    </script>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>

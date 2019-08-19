@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../resources/css/ext-all.css"/>
     <script type="text/javascript">
         Ext.onReady(function () {
-            let curSeledeNode;
+            let curSelectNode;
             var school = new Ext.tree.AsyncTreeNode({text: 'School', expanded: true});
             const treeLoader = new Ext.tree.TreeLoader({dataUrl: 'student_management.json'});
 
@@ -45,11 +45,11 @@
                 }),
                 listeners: {
                     click: function(node){
-                        curSeledeNode = node;
+                        curSelectNode = node;
                     },
                     contextmenu: function (node, e) {
                         node.select();
-                        curSeledeNode=node;
+                        curSelectNode=node;
                         var c = node.getOwnerTree().contextMenu;
                         c.contextNode = node;
                         c.showAt(e.getXY());
@@ -85,15 +85,15 @@
                     text:'Add',
                     listeners: {
                         'click': function (btn, eventObject) {
-                            if (curSeledeNode.leaf === undefined || curSeledeNode.leaf === false) {
-                                if (curSeledeNode.text === 'School') {
+                            if (curSelectNode.leaf === undefined || curSelectNode.leaf === false) {
+                                if (curSelectNode.text === 'School') {
                                     school.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
                                         expanded: true,
                                         children: [],
                                         id: Ext.getCmp('name-id').getValue()+'-id'
                                     }));
                                 } else {
-                                    curSeledeNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
+                                    curSelectNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
                                         leaf: true,
                                         checked: false,
                                         id: Ext.getCmp('name-id').getValue()+'-id'
@@ -101,7 +101,7 @@
                                 }
                             }
                             else{
-                                curSeledeNode.parentNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
+                                curSelectNode.parentNode.appendChild(new Ext.tree.AsyncTreeNode({text: Ext.getCmp('name-id').getValue(),
                                     leaf: true,
                                     checked: false,
                                     id: Ext.getCmp('name-id').getValue()+'-id'
