@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Panda</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="../adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="../ext-all.js"></script>
+    <script type="text/javascript" src="../examples/ux/PagingMemoryProxy.js"></script>
+    <link rel="stylesheet" type="text/css" href="../resources/css/ext-all.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            var selectField=[];
+            var selectRow;
+            var data = [
+                ['panda', 'class1', 'male', 18, '1997-11-23', 'panda.png'],
+                ['eric', 'class1', 'female', 25, '1997-08-08', 'panda.png'],
+                ['bill', 'class1', 'male', 24, '1997-10-22', 'panda.png'],
+                ['tiger', 'class3', 'male', 19, '1997-03-13', 'panda.png'],
+                ['waylon', 'class2', 'female', 22, '1997-05-23', 'panda.png'],
+                ['tomi', 'class2', 'female', 15, '1997-06-18', 'panda.png'],
+                ['cyril', 'class2', 'male', 19, '1997-03-13', 'panda.png'],
+                ['andrew', 'class3', 'female', 22, '1997-05-23', 'panda.png'],
+                ['milo', 'class3', 'female', 20, '1997-06-18', 'panda.png'],
+            ];
+            var window = new Ext.Window({
+                width: 300,
+                height: 210,
+                closable: true,
+                items: new Ext.form.FormPanel({
+                    id: 'form-id',
+                    labelAlign: 'right',  //标签位置
+                    labelWidth: 50,       //标签宽度
+                    width: '100%',
+                    autoHeight:true,
+                    items: [{
+                        items: [{
+                            xtype: 'fieldset',
+                            title: '',
+                            autoHeight: true,
+                            defaults: {width: 200},
+                            buttonAlign: 'center',
+                            items: [
+                                {
+                                    xtype:'textfield',
+                                    id: 'name-field',
+                                    name:'name',
+                                    fieldLabel: '名称',
+                                }, {
+                                    xtype:'combo',
+                                    id: 'class-field',
+                                    fieldLabel: '班级',
+                                    emptyText: '请选择你的班级',
+                                    triggerAction:'all',
+                                    name:'class',
+                                    mode: 'local',
+                                    editable:false,
+                                    store: new Ext.data.ArrayStore({
+                                        fields: ['class'],
+                                        data: [['class1'], ['class2'], ['class3']]
+                                    }),
+                                    valueField: 'class',
+                                    displayField: 'class'
+                                }, {
+                                    xtype:'combo',
+                                    name:'sex',
+                                    id: 'sex-field',
+                                    fieldLabel: '性别',
+                                    emptyText: '请选择你的性别',
+                                    mode: 'local',
+                                    triggerAction:'all',
+                                    editable:false,
+                                    store: new Ext.data.ArrayStore({
+                                        fields: ['sex','desc'],
+                                        data: [['male','男'], ['female','女']]
+                                    }),
+                                    valueField: 'sex',
+                                    displayField: 'desc'
+                                }, {
+                                    xtype:'numberfield',
+                                    name:'age',
+                                    id: 'age-field',
+                                    fieldLabel: '年龄',
+                                }, {
+                                    xtype:'datefield',
+                                    name:'birthday',
+                                    editable:false,
+                                    id: 'birthday-field',
+                                    fieldLabel: '生日',
+                                    emptyText: '请选择你的生日',
+                                    format: 'Y-m-d',
+                                }
+                            ],
+                            buttons: [{
+                                text: 'submit',
+                                handler: function () {
+                                    let nameField = Ext.getCmp('name-field').getValue();
+                                    let classField = Ext.getCmp('class-field').getValue();
+                                    let sexField = Ext.getCmp('sex-field').getValue();
+                                    let ageField = Ext.getCmp('age-field').getValue();
+                                    let birthdayField = Ext.getCmp('birthday-field').getValue().format('Y-m-d');
+                                    data.push([nameField,classField,sexField,ageField,birthdayField,'panda.png']);
+                                    store.load({params: {start: 0, limit: 6}});
+                                    grid.view.refresh();
+                                    Ext.getCmp('form-id').getForm().reset();
+                                    window.hide();
+                                }
+                            }]
+                        }]
+                    }]
+                }),
+
+            });
+
+            var store = new Ext.data.GroupingStore({
+                groupField: 'class',
+                sortInfo: {field: 'class', direction: "ASC"},
+                proxy: new Ext.data.PagingMemoryProxy(data),
+                reader: new Ext.data.ArrayReader({}, [
+                    {name: 'name'},
+                    {name: 'class'},
+                    {name: 'sex'},
+                    {name: 'age'},
+                    {name: 'birthday'},
+                    {name: 'avatar'},
+                ])
+            });
+            var sm = new Ext.grid.CheckboxSelectionModel({
+                listeners: {
+                    'rowselect': function (selectModel, rowIndex, r) {
+                        selectField.push(r)
+                    },
+                    'rowdeselect': function (selectModel, rowIndex, r) {
+                        selectField=selectField.filter(item => item.data.name !== r.data.name)
+                    }
+                }
+            });
+            var grid = new Ext.grid.EditorGridPanel({
+                renderTo: 'test',
+                autoHeight: true,
+                store: store,
+                enableDragDrop: true,
+                view: new Ext.grid.GroupingView(),
+                viewConfig: {
+                    forceFit: true,
+                    enableRowBody: true,
+                },
+                cm: new Ext.grid.ColumnModel([
+                    new Ext.grid.RowNumberer(),
+                    sm,
+                    {
+                        header: '名称', dataIndex: 'name', sortable: true,
+                        editor: new Ext.grid.GridEditor(
+                            new Ext.form.TextField({
+                                allowBlank: false
+                            })
+                        )
+                    },
+                    {
+                        header: '班级', dataIndex: 'class', sortable: true,
+                        editor: new Ext.grid.GridEditor(
+                            new Ext.form.TextField({
+                                allowBlank: false
+                            })
+                        )
+                    },
+                    {
+                        header: '性别', dataIndex: 'sex', sortable: true,
+                        renderer: function (value) {
+                            if (value === 'male') return '男';
+                            return '女';
+                        },
+                        editor: new Ext.grid.GridEditor(
+                            new Ext.form.TextField({
+                                allowBlank: false
+                            })
+                        )
+                    },
+                    {
+                        header: '年龄', dataIndex: 'age', sortable: true,
+                        editor: new Ext.grid.GridEditor(
+                            new Ext.form.TextField({
+                                allowBlank: false
+                            })
+                        )
+                    },
+                    {
+                        header: '生日', dataIndex: 'birthday', sortable: true,
+                        editor: new Ext.grid.GridEditor(
+                            new Ext.form.DateField({
+                                allowBlank: false
+                            })
+                        )
+                    },
+                    {
+                        header: '头像', dataIndex: 'avatar',
+                        renderer: function (value) {
+                            return '<img src="' + value + '" width="20" height="20"/>'
+                        }
+                    }
+                ]),
+                sm: sm,
+                bbar: new Ext.PagingToolbar({
+                    pageSize: 6,
+                    store: store,
+                    displayInfo: true,
+                    displayMsg: '显示第 {0} 条到 {1} 条记录，一共 {2} 条',
+                    emptyMsg: "没有记录"
+                }),
+                listeners:{
+                    rowcontextmenu:function (grid, rowIndex, e) {
+                        selectRow = rowIndex;
+                        e.preventDefault();
+                        grid.getSelectionModel().selectRow(rowIndex);
+                        console.log(grid.getSelectionModel());
+                        contextmenu.showAt(e.getXY());
+                    }
+                },
+                buttons: [{
+                    text: 'add',
+                    handler: function () {
+                        window.show();
+                    }
+                }, {
+                    text: 'delete selected',
+                    handler: function () {
+                        // console.log(selectField[0].data.name);
+                        // selectField.forEach(select=>{
+                        //     data=data.filter(item=>item[0]!==select.data.name)
+                        // });
+                        // store.load({params: {start: 0, limit: 6}});
+                        // console.log(data);
+                        // console.log(store);
+
+                        for (let i = 0; i < selectField.length; i++) {
+                            store.remove(selectField[i]);
+                        }
+
+                        grid.view.refresh();
+                    }
+                }]
+            });
+            const contextmenu = new Ext.menu.Menu({
+                id: 'theContextMenu',
+                items: [
+                    {
+                        text: 'Up',
+                        handler: function(){
+                            if (selectRow > 0) {
+                                store.insert(selectRow - 1, store.getAt(selectRow));
+                                store.remove(selectRow);
+                                grid.getView().refresh();
+                            } else {
+                                store.insert(store.getTotalCount(), store.getAt(selectRow));
+                                store.remove(selectRow);
+                                grid.getView().refresh();
+                            }
+                        }
+                    },
+                    {
+                        text: 'Down',
+                        handler: function(){
+                            if (selectRow < store.getTotalCount()) {
+                                store.insert(selectRow + 1, store.getAt(selectRow));
+                                store.remove(selectRow);
+                                grid.getView().refresh();
+                            }
+                        }
+                    },
+                    {
+                        text: 'First',
+                        handler: function(){
+                            store.insert(0, store.getAt(selectRow));
+                            store.remove(selectRow);
+                            grid.getView().refresh();
+                        }
+                    },
+                    {
+                        text: 'Last',
+                        handler: function(){
+                            store.insert(store.getTotalCount(), store.getAt(selectRow));
+                            store.remove(selectRow);
+                            grid.getView().refresh();
+                        }
+                    }
+                ]
+            });
+            store.load({params: {start: 0, limit: 6}});
+        })
+    </script>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+<div id="test"></div>
+<div id="demo"></div>
+</body>
+</html>
